@@ -7,6 +7,8 @@
  * 
  * @copyright Copyright (c) 2021
  * 
+ * Modified by billyPablo for LP5030 support
+ * 
  */
 #include "LP50XX.h"
 #include "I2C_coms.h"
@@ -270,7 +272,14 @@ void LP50XX::SetI2CAddress(uint8_t address) {
  * @note Code example could be `SetBankControl(LED_0 | LED_1 | LED_2 | LED_3);`
  */
 void LP50XX::SetBankControl(uint8_t leds, EAddressType addressType) {
-    i2c_write_byte(getAddress(addressType), LED_CONFIG0, leds);
+    // billyPablo added functionlaity for LP5030 since LED_CONFIG is split into 2 registers
+    if (leds < 256) {
+        i2c_write_byte(getAddress(addressType), LED_CONFIG0, leds);
+    }
+    else {
+        i2c_write_byte(getAddress(addressType), LED_CONFIG0, (leds >> 4));
+        i2c_write_byte(getAddress(addressType), LED_CONFIG1, (leds << 8));
+    }
 }
 
 /**
